@@ -1,0 +1,92 @@
+{include="header"}
+<!--
+Copyright (C) 2017 Joe Nilson <joenilson at gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<div class="container-fluid">
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-xs-6 pull-left">
+            <div class="btn-group">
+                <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </a>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-6 text-right">
+            <h2 style="margin-top: 0px;">
+                <span class="fa fa-gears" aria-hidden="true"></span> Configuración de Compensación y Beneficios
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3 col-lg-2">
+            <ul class="nav nav-pills nav-stacked" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#general" aria-controls="general" role="tab" data-toggle="tab">
+                        <span class="glyphicon glyphicon-dashboard"></span> &nbsp; Calculos básicos
+                    </a>
+                </li>
+                {loop="$fsc->extensions"}
+                    {if="$value->type=='button'"}
+                    <li>
+                        <a id="b_{$value->from}" href="index.php?page={$value->from}{$value->params}&codagente={$fsc->agente->codagente}">
+                            {$value->text}
+                        </a>
+                    </li>
+                    {elseif="$value->type=='tab'"}
+                    <li role="presentation">
+                        <a href="#ext_{$key}" aria-controls="ext_{$key}" role="tab" data-toggle="tab">
+                            {$value->text}
+                        </a>
+                    </li>
+                    {/if}
+                {/loop}
+            </ul>
+        </div>
+        <div class="col-sm-9 col-lg-10">
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="general">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Configuraci&oacute;n B&aacute;sica</h3>
+                        </div>
+                        <div class="panel-body">
+                            <span class='help-block'>
+                                Para el calculo de la compensación y beneficios de un empleado en este plugin se manejan los siguientes valores:
+                            </span>
+                            <ul class='help-block'>
+                                <li>Sueldo base</li>
+                                <li>Descuentos al sueldo base (Por monto fijo o por porcentaje)</li>
+                                <li>Beneficios sumados al sueldo base (Por monto fijo o por porcentaje)</li>
+                            </ul>
+                            
+                            <form class="form" role="form" action="{$fsc->url()}&type=importar_cargos" method="POST">
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {loop="$fsc->extensions"}
+                    {if="$value->type=='tab'"}
+                    <div role="tabpanel" class="tab-pane" id="ext_{$key}">
+                        <iframe src="index.php?page={$value->from}{$value->params}" width="100%" height="580" frameborder="0"></iframe>
+                    </div>
+                    {/if}
+                {/loop}
+            </div>
+        </div>
+    </div>
+</div>
+{include="footer"}
