@@ -4,7 +4,7 @@
  * Copyright (C) 2017 Joe Nilson <joenilson at gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -18,20 +18,21 @@
  */
 require_once 'plugins/nomina_cb/extras/nomina_cb_controller.php';
 /**
- * Description of configuracion_nomina_cb
+ * Description of nomina_cb_generar_archivo
  *
  * @author Joe Nilson <joenilson at gmail.com>
  */
-class configuracion_nomina_cb extends nomina_cb_controller {
+class nomina_cb_generar_archivo extends nomina_cb_controller {
     public function __construct() {
-        parent::__construct(__CLASS__, 'Configuracion Pagos', 'nomina');
+        parent::__construct(__CLASS__, 'Generar Archivo Pago', 'nomina');
     }
-
+        
     protected function private_core() {
         parent::private_core();
+        $this->share_extensions();
     }
-
+    
     public function share_extensions(){
-
+        
     }
 }

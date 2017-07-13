@@ -1,0 +1,46 @@
+{include="header"}
+<!--
+Copyright (C) 2017 Joe Nilson <joenilson at gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<div class="container-fluid">
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-xs-6 pull-left">
+            <div class="btn-group">
+                <a class="btn btn-sm btn-default" href="{$fsc->url()}" title="Recargar la página">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </a>
+                {if="$fsc->page->is_default()"}
+                <a class="btn btn-sm btn-default active" href="{$fsc->url()}&amp;default_page=FALSE" title="desmarcar como página de inicio">
+                   <span class="glyphicon glyphicon-home"></span>
+                </a>
+                {else}
+                <a class="btn btn-sm btn-default" href="{$fsc->url()}&amp;default_page=TRUE" title="marcar como página de inicio">
+                   <span class="glyphicon glyphicon-home"></span>
+                </a>
+                {/if}
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-6 text-right">
+            <h2 style="margin-top: 0px;">
+                <span class="fa fa-gears" aria-hidden="true"></span> Generar Archivos de Pago
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+    
+    </div>
+</div>
+{include="footer"}
