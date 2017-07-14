@@ -17,18 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once 'plugins/nomina_cb/extras/nomina_cb_controller.php';
+require_model('tiponomina.php');
 /**
  * Description of configuracion_nomina_cb
  *
  * @author Joe Nilson <joenilson at gmail.com>
  */
 class configuracion_nomina_cb extends nomina_cb_controller {
+    public $tiponomina;
     public function __construct() {
         parent::__construct(__CLASS__, 'Configuracion Pagos', 'nomina');
     }
 
     protected function private_core() {
         parent::private_core();
+        $this->tiponomina = new tiponomina();
     }
 
     public function share_extensions(){

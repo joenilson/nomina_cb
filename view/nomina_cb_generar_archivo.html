@@ -32,6 +32,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 </a>
                 {/if}
             </div>
+            <div class="btn-group">
+                <button type="button" id="b_nuevo_archivo" class="btn btn-sm btn-success" data-toggle="modal" data-target="#nuevoArchivo">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    <span class="hidden-xs">&nbsp; Nuevo Archivo</span>
+                </button>
+                <a class="btn btn-sm btn-default" href="#" data-toggle="modal" data-target="#opcionesArchivo">
+                    <span class="fa fa-gears"></span>
+                    <span class="hidden-xs">&nbsp;Opciones de Archivo</span>
+                </a>
+                {loop="$fsc->extensions"}
+                {if="$value->type=='button'"}
+                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+                {/if}
+                {/loop}
+            </div>
         </div>
         <div class="col-sm-6 col-xs-6 text-right">
             <h2 style="margin-top: 0px;">
@@ -43,4 +58,71 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="nuevoArchivo" tabindex="-1" role="dialog" aria-labelledby="nuevoArchivoLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name="f_nuevo_archivo" class="form-horizontal" method="POST" action="{#FS_PATH#}index.php?page=nomina_cb_procesar_archivo" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar" onclick="this.form.reset()"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="nuevoArchivoLabel">Nuevo Archivo de Pago</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="codbanco" class="col-sm-4 control-label">Banco</label>
+                        <div class="col-sm-6">
+                            <select name="codbanco" id="codbanco" required class="form-control">
+                                <option value="">---------</option>
+                                {loop="$fsc->bancos->all()"}
+                                <option value="{$value->codbanco}">{$value->nombre}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoarchivo" class="col-sm-4 control-label">Tipo de Archivo</label>
+                        <div class="col-sm-6">
+                            <select name="tipoarchivo" id="tipoarchivo" required class="form-control">
+                                <option value="">---------</option>
+                                <option value="txt">Archivo TXT</option>
+                                <option value="pdf">Archivo PDF</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="archivo" class="col-sm-4 control-label">Importes a pagar</label>
+                        <div class="col-sm-8">
+                            <input type="file" required name="archivo" id="archivo" accept=".xls, .xlsx">
+                        </div>
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <span class="help-block">En este archivo debe ir {#FS_CIFNIF#} en la primera columna y el monto a pagar en la segunda columna.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="codsubcuenta" class="col-sm-4 control-label">Cuenta de Pago</label>
+                        <div class="col-sm-6">
+                            <select name="codsubcuenta" id="codsubcuenta" class="form-control" required>
+                                <option value="">------</option>
+                                {loop="$fsc->get_subcuentas_pago()"}
+                                <option value="{$value->codsubcuenta}">{$value->descripcion}</option>
+                                {/loop}
+                                <option value="">------</option>
+                                {loop="$fsc->cuenta_banco->all()"}
+                                <option value="{$value->codsubcuenta}">{$value->descripcion}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="this.form.reset()">Cerrar</button>
+                    <button type="submit" class="btn btn-primary"><span class="fa fa-file-text"></span>&nbsp;Generar Archivo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
 {include="footer"}

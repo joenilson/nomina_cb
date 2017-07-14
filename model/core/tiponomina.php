@@ -51,7 +51,7 @@ class tiponomina extends \fs_model {
      */
     public $estado;
     public function __construct($t = '') {
-        parent::__construct('ht_tiponomina');
+        parent::__construct('hr_tiponomina');
         if($t){
             $this->id = $t['id'];
             $this->descripcion = $t['descripcion'];
@@ -72,7 +72,7 @@ class tiponomina extends \fs_model {
                 "('Diaria',1,'diaria',TRUE),".
                 "('Semanal',7,'semanal',TRUE),".
                 "('Quincenal',15,'quincenal',TRUE),".
-                "('Mensual',30,'mensual',TRUE),";
+                "('Mensual',30,'mensual',TRUE);";
     }
     
     public function exists() {

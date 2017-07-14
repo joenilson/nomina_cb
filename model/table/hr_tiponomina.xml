@@ -10,11 +10,21 @@
         <nombre>id</nombre>
         <tipo>serial</tipo>
         <nulo>NO</nulo>
-        <defecto>nextval('hr_tipocuenta_id_seq'::regclass)</defecto>
+        <defecto>nextval('hr_tiponomina_id_seq'::regclass)</defecto>
     </columna>
     <columna>
         <nombre>descripcion</nombre>
         <tipo>character varying(100)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>dias</nombre>
+        <tipo>integer</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>frecuencia</nombre>
+        <tipo>character varying(32)</tipo>
         <nulo>NO</nulo>
     </columna>
     <columna>
@@ -23,7 +33,7 @@
         <nulo>YES</nulo>
     </columna>
     <restriccion>
-        <nombre>hr_tipocuenta_pkey</nombre>
-        <consulta>PRIMARY KEY (codtipo)</consulta>
+        <nombre>hr_tiponomina_pkey</nombre>
+        <consulta>PRIMARY KEY (id)</consulta>
     </restriccion>
 </tabla>
