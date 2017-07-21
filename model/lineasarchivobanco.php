@@ -16,27 +16,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-require_once 'plugins/nomina_cb/extras/nomina_cb_controller.php';
-require_model('archivobanco.php');
+require_once 'plugins/nomina_cb/model/core/lineasarchivobanco.php';
 /**
- * Description of nomina_cb_generar_archivo
+ * Description of lineasarchivobanco
  *
  * @author Joe Nilson <joenilson at gmail.com>
  */
-class nomina_cb_generar_archivo extends nomina_cb_controller {
-
-    public $archivobanco;
-    public function __construct() {
-        parent::__construct(__CLASS__, 'Generar Archivo Pago', 'nomina');
-    }
-        
-    protected function private_core() {
-        parent::private_core();
-        $this->share_extensions();
-        $this->archivobanco = new archivobanco();
-    }
-
-    public function share_extensions(){
-        
-    }
+class lineasarchivobanco extends FacturaScripts\model\lineasarchivobanco
+{
+    //put your code here
 }

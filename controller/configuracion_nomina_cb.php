@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 require_once 'plugins/nomina_cb/extras/nomina_cb_controller.php';
-require_model('tiponomina.php');
 /**
  * Description of configuracion_nomina_cb
  *
@@ -31,7 +30,58 @@ class configuracion_nomina_cb extends nomina_cb_controller {
 
     protected function private_core() {
         parent::private_core();
-        $this->tiponomina = new tiponomina();
+        //Cargamos el menú
+        $this->check_menu();
+        
+    }
+    
+    /**
+     * Cargamos el menú en la base de datos, pero en varias pasadas.
+     */
+    private function check_menu() {
+        if (file_exists(__DIR__)) {
+            $max = 25;
+
+            /// leemos todos los controladores del plugin
+            foreach (scandir(__DIR__) as $f) {
+                if ($f != '.' AND $f != '..' AND is_string($f) AND strlen($f) > 4 AND ! is_dir($f) AND $f != __CLASS__ . '.php') {
+                    /// obtenemos el nombre
+                    $page_name = substr($f, 0, -4);
+
+                    /// lo buscamos en el menú
+                    $encontrado = FALSE;
+                    foreach ($this->menu as $m) {
+                        if ($m->name == $page_name) {
+                            $encontrado = TRUE;
+                            break;
+                        }
+                    }
+
+                    if (!$encontrado) {
+                        require_once __DIR__ . '/' . $f;
+                        $new_fsc = new $page_name();
+
+                        if (!$new_fsc->page->save()) {
+                            $this->new_error_msg("Imposible guardar la página " . $page_name);
+                        }
+
+                        unset($new_fsc);
+
+                        if ($max > 0) {
+                            $max--;
+                        } else {
+                            $this->recargar = TRUE;
+                            $this->new_message('Instalando las entradas al menú para el plugin... &nbsp; <i class="fa fa-refresh fa-spin"></i>');
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            $this->new_error_msg('No se encuentra el directorio ' . __DIR__);
+        }
+
+        $this->load_menu(TRUE);
     }
 
     public function share_extensions(){

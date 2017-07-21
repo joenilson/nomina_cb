@@ -51,52 +51,159 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
     <div class="row">
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>#</th>
-                        <th>Cedula</th>
-                        <th>Empleado</th>
-                        <th>Cuenta</th>
-                        <th>Banco</th>
-                        <th>Tipo cuenta</th>
-                        <th>Importe</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {loop="$fsc->resultado"}
-                    <tr>
-                        <td></td>
-                        <td>{$counter+1}</td>
-                        <td>{$value->cifnif}</td>
-                        <td>{$value->agente}</td>
-                        <td>{$value->cuenta_banco}</td>
-                        <td>{$value->desc_banco}</td>
-                        <td>{$value->tipo_cuenta}</td>
-                        <td class="text-right">{$fsc->show_numero($value->importe,0)}</td>
-                    </tr>
-                {else}
-                    <tr>
-                        <td colspan="8">No hay registros procesados</td>
-                    </tr>
-                {/loop}                
-                </tbody>
-                <tfooter>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th>Total</th>
-                        <th class="text-right">{$fsc->show_numero($fsc->resultado_total_importe,0)}</th>
-                    </tr>
-                </tfooter>
-            </table>
-        </div>
+        <form name="f_nuevo_archivo" class="form-horizontal" method="POST" action="{#FS_PATH#}index.php?page=nomina_cb_procesar_archivo" enctype="multipart/form-data">
+            
+        </form>
+    </div>
+    <div class="row">
+        <form name="f_archivo_pago" id="f_archivo_pago" method="POST" action="{$fsc->url()}" class="form-horizontal">
+            <input type="hidden" name="procesar_archivo" value="TRUE">
+            <div class="container">
+                <div class="form-group">
+                    <label for="codbanco" class="col-sm-2 control-label">Banco Pagador</label>
+                    <div class="col-sm-3">
+                    <select name="codbanco" id="codbanco" required class="form-control input-sm">
+                        <option value="">---------</option>
+                        {loop="$fsc->bancos->all()"}
+                        <option value="{$value->codbanco}" {if="$fsc->codbanco==$value->codbanco"}selected{/if}>{$value->nombre}</option>
+                        {/loop}
+                    </select>
+                    </div>
+                    <label for="tipoarchivo" class="col-sm-2 control-label">Tipo de Archivo</label>
+                    <div class="col-sm-3">
+                    <select name="tipoarchivo" id="tipoarchivo" required class="form-control input-sm">
+                        <option value="">---------</option>
+                        <option value="txt" {if="$fsc->tipoarchivo=='txt'"}selected{/if}>Archivo TXT</option>
+                        <option value="pdf" {if="$fsc->tipoarchivo=='pdf'"}selected{/if}>Archivo PDF</option>
+                    </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="coddivisa" class="col-sm-2 control-label">Moneda a pagar</label>
+                    <div class="col-sm-3">
+                    <select name="coddivisa" id="coddivisa" required class="form-control input-sm">
+                        <option value="">---------</option>
+                        {loop="$fsc->divisa->all()"}
+                        <option value="{$value->coddivisa}" {if="$value->coddivisa==$fsc->empresa->coddivisa"}selected{/if}>{$value->descripcion}</option>
+                        {/loop}
+                    </select>
+                    </div>
+                    <label for="codsubcuenta" class="col-sm-2 control-label">Cuenta de Pago</label>
+                    <div class="col-sm-3">
+                    <select name="codsubcuenta" id="codsubcuenta" class="form-control input-sm" required>
+                        <option value="">------</option>
+                        {loop="$fsc->get_subcuentas_pago()"}
+                        <option value="{$value->codsubcuenta}" {if="$fsc->codsubcuenta==$value->codsubcuenta"}selected{/if}>{$value->descripcion}</option>
+                        {/loop}
+                        <option value="">------</option>
+                        {loop="$fsc->cuenta_banco->all()"}
+                        <option value="{$value->codsubcuenta}" {if="$fsc->codsubcuenta==$value->codsubcuenta"}selected{/if}>{$value->descripcion}</option>
+                        {/loop}
+                    </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="nombre_archivo" class="col-sm-2 control-label">Nombre de Archivo</label>
+                    <div class="col-sm-3">
+                    <input type="text" id="nombre_archivo" name="nombre_archivo" value="PE0000101{function="date('md')"}0000001E.TXT" class="form-control input-sm">
+                    </div>
+                    <label for="importe_total" class="col-sm-2 control-label">Importe y Cantidad de Registros</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control input-sm text-right" readonly name="importe_total" id="importe_total" value="0">
+                    </div>
+                    <div class="col-sm-1">
+                        <input type="text" class="form-control input-sm text-right" readonly name="cantidad_registros" id="cantidad_registros" value="0">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary" name="btn_archivo" id="btn_archivo">
+                        <span class="fa fa-file-text"></span>&nbsp;Descargar Archivo
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center col-sm-1"><input type="checkbox" name="marcar_todo" id="marcar_todo" value=""></th>
+                            <th class="text-center col-sm-1">#</th>
+                            <th class="text-center col-sm-2">Cedula</th>
+                            <th class="text-center col-sm-2">Empleado</th>
+                            <th class="text-center col-sm-2">Cuenta</th>
+                            <th class="text-center col-sm-2">Banco</th>
+                            <th class="text-center col-sm-1">Tipo cuenta</th>
+                            <th class="text-center col-sm-1">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {loop="$fsc->resultado"}
+                        <tr {if="!$value->importe OR !$value->agente"}class="bg-danger text-danger"{/if}>
+                            <td class="text-center">{if="$value->importe AND $value->agente AND $value->cuenta_banco"}<input type='checkbox' class="checkbox_linea" name='codagente[]' value='{$value->codagente}'>{/if}</td>
+                            <td>{$counter+1}</td>
+                            <td>{$value->dnicif}</td>
+                            <td>{$value->codagente} {$value->agente}</td>
+                            <td><input type="text" class="form-control" value="{$value->cuenta_banco}" readonly></td>
+                            <td>{$value->desc_banco}</td>
+                            <td>{$value->tipo_cuenta}</td>
+                            <td class="text-right"><input type="text" id="importe_{$value->codagente}" name="importe_{$value->codagente}" class="form-control text-right" value="{$value->importe}" readonly></td>
+                        </tr>
+                    {else}
+                        <tr>
+                            <td colspan="8">No hay registros procesados</td>
+                        </tr>
+                    {/loop}                
+                    </tbody>
+                    <tfooter>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Total</th>
+                            <th class="text-right">{$fsc->show_numero($fsc->resultado_total_importe,0)}</th>
+                        </tr>
+                    </tfooter>
+                </table>
+            </div>
+        </form>
     </div>
 </div>
+<script>
+function mostrar_boton(){
+    if(Number($('#importe_total').val()) !== 0){
+        $("#btn_archivo").show();
+    }else{
+        $("#btn_archivo").hide();
+    }
+    var empleados = $("#f_archivo_pago input[name='codagente[]']:checked");
+    $('#cantidad_registros').val(empleados.length);
+}
+$(document).ready(function() {
+    mostrar_boton();
+    $('#marcar_todo').click(function() {
+        var checked = $(this).prop('checked');
+        $('#importe_total').val(0);
+        $("#f_archivo_pago input[name='codagente[]']").prop('checked', checked);
+        var empleados = $("#f_archivo_pago input[name='codagente[]']:checked");
+        var total_archivo = Number(0);
+        empleados.each(function(){
+            var codagente = this.value;
+            total_archivo+=Number($('#importe_'+codagente).val());
+        });
+        $('#importe_total').val(total_archivo);
+        mostrar_boton();
+    });
+    $(".checkbox_linea").change(function() {
+        var codagente = this.value;
+        var total_archivo = Number($('#importe_total').val());
+        var linea_archivo = Number($('#importe_'+codagente).val());
+        if(this.checked) {
+            $('#importe_total').val(total_archivo+linea_archivo);
+        }else{
+            $('#importe_total').val(total_archivo-linea_archivo);
+        }
+        mostrar_boton();
+    });
+});
+</script>
 {include="footer"}

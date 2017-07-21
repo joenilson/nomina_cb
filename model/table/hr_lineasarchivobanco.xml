@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hr_lineasarchivobanco.xml
+    Description:
+        Estructura de la tabla hr_lineasarchivobanco.
+    Author: Joe Nilson
+-->
+<tabla>
+    <columna>
+        <nombre>idlinea</nombre>
+        <tipo>serial</tipo>
+        <nulo>NO</nulo>
+        <defecto>nextval('hr_lineasarchivobanco_id_seq'::regclass)</defecto>
+    </columna>
+    <columna>
+        <nombre>idarchivo</nombre>
+        <tipo>integer</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>codagente</nombre>
+        <tipo>character varying(10)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>banco_receptor</nombre>
+        <tipo>character varying(6)</tipo>
+        <nulo>YES</nulo>
+    </columna>
+    <columna>
+        <nombre>cuenta_banco</nombre>
+        <tipo>character varying(34)</tipo>
+        <nulo>YES</nulo>
+    </columna>
+    <columna>
+        <nombre>tipo_cuenta</nombre>
+        <tipo>character varying(4)</tipo>
+        <nulo>YES</nulo>
+    </columna>    
+    <columna>
+        <nombre>periodo</nombre>
+        <tipo>integer</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>mes</nombre>
+        <tipo>character varying(2)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
+        <nombre>monto</nombre>
+        <tipo>double precision</tipo>
+        <nulo>NO</nulo>
+        <defecto>0</defecto>
+    </columna>
+    <restriccion>
+      <nombre>fk_lineasarchivobanco</nombre>
+      <consulta>FOREIGN KEY (idarchivo)
+      REFERENCES hr_archivobanco (id)
+      ON DELETE CASCADE ON UPDATE CASCADE</consulta>
+   </restriccion>
+    <restriccion>
+        <nombre>hr_lineasarchivobanco_pkey</nombre>
+        <consulta>PRIMARY KEY (idlinea)</consulta>
+    </restriccion>
+</tabla>

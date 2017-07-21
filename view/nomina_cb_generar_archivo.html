@@ -55,7 +55,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
     <div class="row">
-    
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Año</th>
+                        <th>Mes</th>
+                        <th>Banco</th>
+                        <th>Moneda</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th>Enviado</th>
+                        <th>Procesado</th>
+                        <th><span class="fa fa-eye"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {loop="$fsc->archivobanco->all()"}
+                    <tr>
+                        <td>{$value->archivo}</td>
+                        <td>{$value->periodo}</td>
+                        <td>{$value->mes}</td>
+                        <td>{$value->codbanco}</td>
+                        <td>{$value->coddivisa}</td>
+                        <td>{$value->total}</td>
+                        <td>{$value->estado}</td>
+                        <td>{$value->enviado}</td>
+                        <td>{$value->procesado}</td>
+                        <td></td>
+                    </tr>
+                    {else}
+                    <tr>
+                        <td colspan="10">No hay registros de archivos generados</td>
+                    </tr>
+                    {/loop}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 <!-- Modal -->
@@ -69,7 +106,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="codbanco" class="col-sm-4 control-label">Banco</label>
+                        <label for="codbanco" class="col-sm-4 control-label">Banco Pagador</label>
                         <div class="col-sm-6">
                             <select name="codbanco" id="codbanco" required class="form-control">
                                 <option value="">---------</option>
@@ -86,6 +123,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                                 <option value="">---------</option>
                                 <option value="txt">Archivo TXT</option>
                                 <option value="pdf">Archivo PDF</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodo" class="col-sm-2 control-label">Periodo</label>
+                        <div class="col-sm-4">
+                            <select name="periodo" id="periodo" required class="form-control">
+                                <option value="">---------</option>
+                                {loop="$fsc->periodo"}
+                                <option value="{$value}">{$value}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                        <label for="mes" class="col-sm-2 control-label">Mes</label>
+                        <div class="col-sm-4">
+                            <select name="mes" id="mes" required class="form-control">
+                                <option value="">---------</option>
+                                {loop="$fsc->mes"}
+                                <option value="{$value}">{$fsc->meses[$value]}</option>
+                                {/loop}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="coddivisa" class="col-sm-4 control-label">Moneda a pagar</label>
+                        <div class="col-sm-6">
+                            <select name="coddivisa" id="coddivisa" required class="form-control">
+                                <option value="">---------</option>
+                                {loop="$fsc->divisa->all()"}
+                                <option value="{$value->coddivisa}" {if="$value->coddivisa==$fsc->empresa->coddivisa"}selected{/if}>{$value->descripcion}</option>
+                                {/loop}
                             </select>
                         </div>
                     </div>
