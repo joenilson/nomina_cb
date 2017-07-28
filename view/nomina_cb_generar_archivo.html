@@ -73,17 +73,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 </thead>
                 <tbody>
                     {loop="$fsc->archivobanco->all()"}
-                    <tr>
+                    <tr {if="$value->id==$fsc->id"}class="bg-success text-success"{/if}>
                         <td>{$value->archivo}</td>
                         <td>{$value->periodo}</td>
                         <td>{$value->mes}</td>
                         <td>{$value->codbanco}</td>
                         <td>{$value->coddivisa}</td>
                         <td>{$value->total}</td>
-                        <td>{$value->estado}</td>
-                        <td>{$value->enviado}</td>
-                        <td>{$value->procesado}</td>
-                        <td></td>
+                        <td class="text-center">
+                            {if="$value->estado"}
+                            <span class="fa fa-2x fa-check-circle text-success"></span>
+                            {else}
+                            <span class="fa fa-2x fa-close text-danger"></span>
+                            {/if}
+                            &nbsp;
+                            {if="$fsc->allow_delete AND !$value->enviado"}
+                            <button class="btn btn-sm btn-danger pull-right" onclick="eliminarArchivo({$value->id})">
+                                <span class="fa fa-trash"></span>
+                            </button>
+                            {/if}
+                        </td>
+                        <td class="text-center">
+                            {if="$value->enviado"}
+                            <span class="fa fa-2x fa-check-circle text-success"></span>
+                            {else}
+                            <span class="fa fa-2x fa-close text-danger"></span>
+                            <button class="btn btn-sm btn-success pull-right" onclick="confirmarEstado('enviado',{$value->id},'{$value->archivo}')">
+                                </span><span class="fa fa-check-circle"></span>
+                            </button>
+                            {/if}
+                            {if="$fsc->allow_delete AND $value->enviado AND !$value->procesado"}
+                            <button class="btn btn-sm btn-danger pull-right" onclick="desconfirmarEstado('enviado',{$value->id},'{$value->archivo}')">
+                                <span class="fa fa-undo"></span>
+                            </button>
+                            {/if}
+                        </td>
+                        <td class="text-center">
+                            {if="$value->procesado"}
+                            <span class="fa fa-2x fa-check-circle text-success"></span>
+                            {else}
+                            <span class="fa fa-2x fa-close text-danger"></span>
+                            <button class="btn btn-sm btn-success pull-right" onclick="confirmarEstado('procesado',{$value->id},'{$value->archivo}')">
+                                </span><span class="fa fa-check-circle"></span>
+                            </button>
+                            {/if}
+                            {if="$fsc->allow_delete AND $value->procesado"}
+                            <button class="btn btn-sm btn-danger pull-right" onclick="desconfirmarEstado('procesado',{$value->id},'{$value->archivo}')">
+                                <span class="fa fa-undo"></span>
+                            </button>
+                            {/if}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="verArchivo({$value->id})">
+                                <span class="fa fa-eye"></span><span aria-hidden="true">&nbsp;Ver</span>
+                            </button>
+                        </td>
                     </tr>
                     {else}
                     <tr>
@@ -95,102 +139,163 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </div>
     </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="nuevoArchivo" tabindex="-1" role="dialog" aria-labelledby="nuevoArchivoLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form name="f_nuevo_archivo" class="form-horizontal" method="POST" action="{#FS_PATH#}index.php?page=nomina_cb_procesar_archivo" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar" onclick="this.form.reset()"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="nuevoArchivoLabel">Nuevo Archivo de Pago</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="codbanco" class="col-sm-4 control-label">Banco Pagador</label>
-                        <div class="col-sm-6">
-                            <select name="codbanco" id="codbanco" required class="form-control">
-                                <option value="">---------</option>
-                                {loop="$fsc->bancos->all()"}
-                                <option value="{$value->codbanco}">{$value->nombre}</option>
-                                {/loop}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="tipoarchivo" class="col-sm-4 control-label">Tipo de Archivo</label>
-                        <div class="col-sm-6">
-                            <select name="tipoarchivo" id="tipoarchivo" required class="form-control">
-                                <option value="">---------</option>
-                                <option value="txt">Archivo TXT</option>
-                                <option value="pdf">Archivo PDF</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="periodo" class="col-sm-2 control-label">Periodo</label>
-                        <div class="col-sm-4">
-                            <select name="periodo" id="periodo" required class="form-control">
-                                <option value="">---------</option>
-                                {loop="$fsc->periodo"}
-                                <option value="{$value}">{$value}</option>
-                                {/loop}
-                            </select>
-                        </div>
-                        <label for="mes" class="col-sm-2 control-label">Mes</label>
-                        <div class="col-sm-4">
-                            <select name="mes" id="mes" required class="form-control">
-                                <option value="">---------</option>
-                                {loop="$fsc->mes"}
-                                <option value="{$value}">{$fsc->meses[$value]}</option>
-                                {/loop}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="coddivisa" class="col-sm-4 control-label">Moneda a pagar</label>
-                        <div class="col-sm-6">
-                            <select name="coddivisa" id="coddivisa" required class="form-control">
-                                <option value="">---------</option>
-                                {loop="$fsc->divisa->all()"}
-                                <option value="{$value->coddivisa}" {if="$value->coddivisa==$fsc->empresa->coddivisa"}selected{/if}>{$value->descripcion}</option>
-                                {/loop}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="archivo" class="col-sm-4 control-label">Importes a pagar</label>
-                        <div class="col-sm-8">
-                            <input type="file" required name="archivo" id="archivo" accept=".xls, .xlsx">
-                        </div>
-                        <div class="col-sm-offset-4 col-sm-8">
-                            <span class="help-block">En este archivo debe ir {#FS_CIFNIF#} en la primera columna y el monto a pagar en la segunda columna.</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="codsubcuenta" class="col-sm-4 control-label">Cuenta de Pago</label>
-                        <div class="col-sm-6">
-                            <select name="codsubcuenta" id="codsubcuenta" class="form-control" required>
-                                <option value="">------</option>
-                                {loop="$fsc->get_subcuentas_pago()"}
-                                <option value="{$value->codsubcuenta}">{$value->descripcion}</option>
-                                {/loop}
-                                <option value="">------</option>
-                                {loop="$fsc->cuenta_banco->all()"}
-                                <option value="{$value->codsubcuenta}">{$value->descripcion}</option>
-                                {/loop}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="this.form.reset()">Cerrar</button>
-                    <button type="submit" class="btn btn-primary"><span class="fa fa-file-text"></span>&nbsp;Generar Archivo</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<script>
 
+{include="nuevo_archivo"}
+{include="opciones_archivo"}
+{include="ver_archivo"}
+
+<script>
+function verArchivo(id)
+{
+    $('#modalVisualizacionArchivo').modal('show');
+    $("#verArchivo").detach();
+    $("<iframe id='verArchivo' />")
+      .attr('src', '{$fsc->url()}&mostrar=TRUE&idarchivo='+id)
+      .attr('width', '100%')
+      .attr('height', '450')
+      .appendTo('#modal_body_ver_archivo');
+}
+
+function eliminarArchivo(id)
+{
+    bootbox.confirm({
+        title: "¿Eliminar el archivo seleccionado?",
+        message: "¿Confirma que desea eliminar el archivo seleccionado?, <b>no podrá recuperarse una vez eliminado.</b>",
+        buttons: {
+            cancel: {
+                label: '<i class="fa fa-times"></i> Cancelar'
+            },
+            confirm: {
+                label: '<i class="fa fa-trash"></i> Eliminar'
+            }
+        },
+        callback: function (result) {
+            if(result){
+                $.ajax({
+                    type: 'POST',
+                    url: '{$fsc->url()}&eliminar=TRUE&id={$fsc->id}',
+                    async: false,
+                    data: 'idarchivo='+id,
+                    success : function(datos) {
+                        if(datos.success){
+                            bootbox.alert({
+                                message: "¡Archivo eliminado!",
+                                callback: function(){
+                                    window.location.assign("{$fsc->url()}&id={$fsc->id}");
+                                }
+                            });
+                        }
+                        else{
+                            bootbox.alert({
+                                title: "¡"+texto_titulo+" no confirmado!",
+                                message: datos.mensaje
+                            });
+                        }
+                    },
+                    error: function(datos) {
+                        bootbox.alert("Ocurrio un error no contemplado en el plugin, por favor envie un mensaje en el foro de soporte de FacturaScripts para verificar el problema, gracias.");
+                    }
+                });
+            }
+        }
+    });
+}
+
+function confirmarEstado(estado,id,nombre)
+{
+    var texto_titulo = (estado === 'enviado')?'Envío':'Procesamiento';
+    var texto_cuerpo = (estado === 'enviado')?'enviado':'procesado';
+    bootbox.confirm({
+        title: "¿Confirmar "+texto_titulo+"?",
+        message: "¿Confirma que el archivo "+nombre+" fue "+texto_cuerpo+"?",
+        buttons: {
+            cancel: {
+                label: '<i class="fa fa-times"></i> Cancelar'
+            },
+            confirm: {
+                label: '<i class="fa fa-check"></i> Confirmar'
+            }
+        },
+        callback: function (result) {
+            if(result){
+                $.ajax({
+                    type: 'POST',
+                    url: '{$fsc->url()}&confirmar=TRUE&id={$fsc->id}',
+                    async: false,
+                    data: estado+'=TRUE&idarchivo='+id,
+                    success : function(datos) {
+                        if(datos.success){
+                            bootbox.alert({
+                                message: "¡"+texto_titulo+" confirmado!",
+                                callback: function(){
+                                    window.location.assign("{$fsc->url()}&id={$fsc->id}");
+                                }
+                            });
+                        }
+                        else{
+                            bootbox.alert({
+                                title: "¡"+texto_titulo+" no confirmado!",
+                                message: datos.mensaje
+                            });
+                        }
+                    },
+                    error: function(datos) {
+                        bootbox.alert("Ocurrio un error no contemplado en el plugin, por favor envie un mensaje en el foro de soporte de FacturaScripts para verificar el problema, gracias.");
+                    }
+                });
+            }
+        }
+    });
+}
+
+function desconfirmarEstado(estado,id,nombre)
+{
+    var texto_titulo = (estado === 'enviado')?'Envío':'Procesamiento';
+    var texto_cuerpo = (estado === 'enviado')?'enviado':'procesado';
+    bootbox.confirm({
+        title: "¿Desconfirmar "+texto_titulo+"?",
+        message: "¿Desconfirmar el "+texto_titulo+" del archivo "+nombre+"?",
+        buttons: {
+            cancel: {
+                label: '<i class="fa fa-times"></i> Cancelar'
+            },
+            confirm: {
+                label: '<i class="fa fa-undo"></i> Desconfirmar'
+            }
+        },
+        callback: function (result) {
+            if(result){
+                $.ajax({
+                    type: 'POST',
+                    url: '{$fsc->url()}&desconfirmar=TRUE&id={$fsc->id}',
+                    async: false,
+                    data: estado+'=FALSE&idarchivo='+id,
+                    success : function(datos) {
+                        if(datos.success){
+                            bootbox.alert({
+                                message: "¡"+texto_titulo+" desconfirmado!",
+                                callback: function(){
+                                    window.location.assign("{$fsc->url()}&id={$fsc->id}");
+                                }
+                            });
+                        }
+                        else{
+                            bootbox.alert({
+                                title: "¡"+texto_titulo+" no confirmado!",
+                                message: datos.mensaje
+                            });
+                        }
+                    },
+                    error: function(datos) {
+                        bootbox.alert("Ocurrio un error no contemplado en el plugin, por favor envie un mensaje en el foro de soporte de FacturaScripts para verificar el problema, gracias.");
+                    }
+                });
+            }
+        }
+    });
+}
+$(document).ready(function() {
+    bootbox.setLocale('es');
+});
 </script>
 {include="footer"}

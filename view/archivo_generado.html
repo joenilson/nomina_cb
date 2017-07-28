@@ -1,0 +1,91 @@
+{include="header2"}
+<!--
+Copyright (C) 2017 Joe Nilson <joenilson at gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<div class="container-fluid">
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-xs-6 pull-left">
+            <div class="btn-group">
+                <a class="btn btn-sm btn-default" href="{$fsc->url()}&mostrar=TRUE&idarchivo={$fsc->idarchivo_ver}" title="Recargar la página">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                </a>
+                <a role="button" class="btn btn-sm btn-primary" href="{$fsc->url()}&descargar=TRUE&idarchivo={$fsc->idarchivo_ver}">
+                    <span class="fa fa-file-text"></span>&nbsp;Descargar Archivo
+                </a>
+            </div>
+            <div class="btn-group">
+                {loop="$fsc->extensions"}
+                {if="$value->type=='button'"}
+                <a href="index.php?page={$value->from}{$value->params}" class="btn btn-sm btn-default">{$value->text}</a>
+                {/if}
+                {/loop}
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-6 text-right">
+            <h2 style="margin-top: 0px;">
+                <span class="fa fa-file-text" aria-hidden="true"></span>&nbsp;Archivo de Pagos
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <form name="f_archivo_pago" id="f_archivo_pago" method="POST" action="{$fsc->url()}" class="form-horizontal">            
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="text-center col-sm-1">#</th>
+                            <th class="text-center col-sm-2">Cedula</th>
+                            <th class="text-center col-sm-3">Empleado</th>
+                            <th class="text-center col-sm-2">Cuenta</th>
+                            <th class="text-center col-sm-2">Banco</th>
+                            <th class="text-center col-sm-1">Tipo cuenta</th>
+                            <th class="text-center col-sm-1">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {loop="$fsc->resultado"}
+                        <tr>
+                            <td>{$counter+1}</td>
+                            <td>{$value->dnicif}</td>
+                            <td>{$value->agente}</td>
+                            <td>{$value->cuenta_banco}</td>
+                            <td>{$value->desc_banco}</td>
+                            <td>{$value->tipo_cuenta}</td>
+                            <td class="text-right">{$fsc->show_numero($value->monto,FS_NF0)}</td>
+                        </tr>
+                    {else}
+                        <tr>
+                            <td colspan="7">No hay registros procesados</td>
+                        </tr>
+                    {/loop}                
+                    </tbody>
+                    <tfooter>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Total</th>
+                            <th class="text-right">{$fsc->show_numero($fsc->resultado_total_importe,2)}</th>
+                        </tr>
+                    </tfooter>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+{include="footer2"}

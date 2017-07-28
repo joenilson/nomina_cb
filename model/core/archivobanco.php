@@ -170,7 +170,7 @@ class archivobanco extends \fs_model {
     public function all()
     {
         $lista = array();
-        $sql = "SELECT * FROM ".$this->table_name." ORDER BY periodo,mes,codbanco;";
+        $sql = "SELECT * FROM ".$this->table_name." ORDER BY id DESC;";
         $data = $this->db->select($sql);
         if($data){
             foreach($data as $d) {

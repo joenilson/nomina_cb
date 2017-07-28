@@ -38,6 +38,7 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
     public $mes;
     public $lineas;
     public $sec_lineas;
+    public $preliminar;
     private $archivobanco;
     public function __construct() {
         parent::__construct(__CLASS__, 'Procesar Archivo Pago', 'nomina', FALSE, FALSE);
@@ -50,17 +51,21 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
         $this->tipoarchivo = \filter_input(INPUT_POST, 'tipoarchivo');
         $this->codsubcuenta = \filter_input(INPUT_POST, 'codsubcuenta');
         $this->coddivisa = \filter_input(INPUT_POST, 'coddivisa');
-        $this->periodo = 2017;
-        $this->mes = 7;
+        $this->periodo = \filter_input(INPUT_POST, 'periodo');
+        $this->mes = \filter_input(INPUT_POST, 'mes');
         $this->lineas = \filter_input(INPUT_POST,'codagente', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
         
         if(\filter_input(INPUT_POST, 'procesar_archivo')){
             $this->guardar_archivo();
         }else{
             $archivo = $_FILES['archivo'];
+            $this->preliminar = new archivobanco();
+            $this->preliminar->codbanco = $this->codbanco;
+            $this->preliminar->periodo = $this->periodo;
+            $this->preliminar->secuencia = str_pad($this->preliminar->secuencia(),7,'0',STR_PAD_LEFT);
             if($archivo){
                 $this->resultado_total_importe = 0;
-                $this->resultado = $this->leer_archivo($archivo);    
+                $this->resultado = $this->leer_archivo($archivo);
             }
         }
     }
@@ -86,7 +91,7 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
                 $this->new_message('¡Ocurrió un error guardando la información del archivo, se han eliminado los registros del mismo hasta que se corrija la información! '.$archivo->id);
             }else{
                 $this->archivobanco = $archivo;
-                $this->crear_archivo();
+                header('location: '.FS_PATH.FS_MYDOCS.'index.php?page=nomina_cb_generar_archivo&id='.$archivo->id);
             }
         }
         

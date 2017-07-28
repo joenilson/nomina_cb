@@ -48,9 +48,8 @@ class nomina_cb_controller extends fs_controller {
     public $bancos;
     public $cuentas_banco;
     public $divisa;
-    public $periodo;
-    public $mes;
-    public $meses = array('Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Setiembre','Octubre','Noviembre','Diciembre');
+    public $periodos;
+    public $meses = array(1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',7=>'Julio',8=>'Agosto',9=>'Setiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre');
     protected function private_core() {
         /// ¿El usuario tiene permiso para eliminar en esta página?
         $this->allow_delete = $this->user->allow_delete_on($this->class_name);
@@ -66,8 +65,7 @@ class nomina_cb_controller extends fs_controller {
         /// ¿Hay más de un almacén?
         $fsvar = new fs_var();
         $this->multi_almacen = $fsvar->simple_get('multi_almacen');
-        $this->mes = range(1,12);
-        $this->periodo = range(2016,\date('Y'));
+        $this->periodos = range(2016,\date('Y'));
     }
 
     /**
