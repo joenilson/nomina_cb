@@ -23,6 +23,7 @@ require_model('divisa.php');
 require_model('ejercicio.php');
 require_model('subcuenta.php');
 require_model('tiponomina.php');
+require_model('tipocuenta.php');
 
 /**
  * Clase para colocar las funciones básicas de los controladores
@@ -50,6 +51,9 @@ class nomina_cb_controller extends fs_controller {
     public $divisa;
     public $periodos;
     public $meses = array(1=>'Enero',2=>'Febrero',3=>'Marzo',4=>'Abril',5=>'Mayo',6=>'Junio',7=>'Julio',8=>'Agosto',9=>'Setiembre',10=>'Octubre',11=>'Noviembre',12=>'Diciembre');
+    public $tiponomina;
+    public $tipocuenta;
+    public $cuenta_banco;
     protected function private_core() {
         /// ¿El usuario tiene permiso para eliminar en esta página?
         $this->allow_delete = $this->user->allow_delete_on($this->class_name);
@@ -62,6 +66,7 @@ class nomina_cb_controller extends fs_controller {
         $this->cuenta_banco = new cuenta_banco();
         $this->divisa = new divisa();
         $this->tiponomina = new tiponomina();
+        $this->tipocuenta = new tipocuenta();
         /// ¿Hay más de un almacén?
         $fsvar = new fs_var();
         $this->multi_almacen = $fsvar->simple_get('multi_almacen');

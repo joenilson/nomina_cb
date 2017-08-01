@@ -26,10 +26,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <div class="modal-body">
                     <input type="hidden" name="opciones_archivo" value="TRUE">
                     <div class="form-group">
-                        {loop="$fsc->bancos->all()"}
-                        <label for="codigo_banco_{$value->codbanco}" class="col-sm-4 control-label">{$value->nombre}</label>
+                        <div class="col-sm-3 text-center"><b>Banco Pago</b></div>
+                        <div class="col-sm-3 text-center"><b>Codigo Asignado</b></div>
+                        <div class="col-sm-6 text-center"><b>Email Notificación</b></div>
+                    </div>
+                    <div class="form-group">
+                        {loop="$fsc->infobancos"}
+                        <label for="codigo_banco_{$value->codbanco}" class="col-sm-3 control-label">{$value->nombre}</label>
+                        <div class="col-sm-3">
+                            <input name="codigo_empresa_{$value->codbanco}" id="codigo_empresa_{$value->codbanco}" placeholder="Codigo empresa."  value="{$value->codempresa}" class="form-control input-sm">
+                        </div>
                         <div class="col-sm-6">
-                            <input name="codigo_banco_{$value->codbanco}" id="codigo_banco_{$value->codbanco}" placeholder="Codigo de empresa para este medio de pago..."  value="" class="form-control input-sm">
+                            <input name="email_contacto_{$value->codbanco}" id="email_contacto_{$value->codbanco}" placeholder="Email para este medio de pago."  value="{$value->email_contacto}" class="form-control input-sm">
                         </div>
                         {/loop}
                     </div>

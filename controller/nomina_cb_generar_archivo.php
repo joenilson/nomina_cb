@@ -18,6 +18,7 @@
  */
 require_once 'plugins/nomina_cb/extras/nomina_cb_controller.php';
 require_model('archivobanco.php');
+require_model('opcionesbanco.php');
 /**
  * Description of nomina_cb_generar_archivo
  *
@@ -26,6 +27,8 @@ require_model('archivobanco.php');
 class nomina_cb_generar_archivo extends nomina_cb_controller {
 
     public $archivobanco;
+    public $opcionesbanco;
+    public $infobancos;
     public $id;
     public $resultado;
     public $resultado_total_importe;
@@ -39,6 +42,7 @@ class nomina_cb_generar_archivo extends nomina_cb_controller {
         parent::private_core();
         $this->share_extensions();
         $this->archivobanco = new archivobanco();
+        $this->opcionesbanco = new opcionesbanco();
         $this->id = \filter_input(INPUT_GET, 'id');
         
         if(\filter_input(INPUT_POST, 'opciones_archivo')){
@@ -64,16 +68,47 @@ class nomina_cb_generar_archivo extends nomina_cb_controller {
         if(\filter_input(INPUT_GET, 'descargar')){
             $this->descargar_archivo();
         }
+        $this->infobancos = $this->infobancos();
+    }
+    
+    public function infobancos()
+    {
+        $bancos = $this->bancos->all();
+        $lista = array();
+        foreach($bancos as $b){
+            $ob0 = $this->opcionesbanco->get($this->empresa->id, $b->codbanco);
+            $item = new stdClass();
+            $item->codbanco = $b->codbanco;
+            $item->nombre = $b->nombre;
+            $item->codempresa = ($ob0)?$ob0->codempresa:'';
+            $item->email_contacto = ($ob0)?$ob0->email_contacto:'';
+            $lista[] = $item;
+        }
+        return $lista;
     }
     
     public function opciones_archivo()
     {
         $lista_bancos = $this->bancos->all();
-        $opciones_banco = new opciones_banco();
+        $error = 0;
+        $exito = 0;
         foreach($lista_bancos as $banco){
-            $opcion_banco = \filter_input(INPUT_POST, 'codigo_banco_'.$banco->codbanco);
-            
+            $opc0 = new opcionesbanco();
+            $opc0->idempresa = $this->empresa->id;
+            $opc0->codbanco = $banco->codbanco;
+            $opc0->codempresa = \filter_input(INPUT_POST, 'codigo_empresa_'.$banco->codbanco);
+            $opc0->email_contacto = \filter_input(INPUT_POST, 'email_contacto_'.$banco->codbanco);
+            $opc0->fecha_creacion = \date('Y-m-d H:i:s');
+            $opc0->usuario_creacion = $this->user->nick;
+            $opc0->fecha_modificacion = \date('Y-m-d H:i:s');
+            $opc0->usuario_modificacion = $this->user->nick;
+            if($opc0->save()){
+                $exito++;
+            }else{
+                $error++;
+            }
         }
+        $this->new_message('Se han guardado las opciones de '.$exito.' bancos');
     }
     
     public function cabecera_txt($archivo)
@@ -111,7 +146,7 @@ class nomina_cb_generar_archivo extends nomina_cb_controller {
         $string .= \str_pad($agente->cuenta_banco, 20,"0",STR_PAD_LEFT);
         $string .= \str_pad((int) $agente->tipo_cuenta,1,' ');
         $string .= \str_pad((int) $divisa->codiso, 3,"0",STR_PAD_LEFT);
-        $string .= \str_pad($agente->codbanco, 8,"0",STR_PAD_LEFT);
+        $string .= \str_pad('10101070', 8,"0",STR_PAD_LEFT);
         $string .= 8;
         $string .= "22";
         $string .= \number_format($l->monto,FS_NF0,'','');

@@ -22,6 +22,11 @@
         <nulo>NO</nulo>
     </columna>
     <columna>
+        <nombre>email_contacto</nombre>
+        <tipo>character varying(80)</tipo>
+        <nulo>NO</nulo>
+    </columna>
+    <columna>
         <nombre>fecha_creacion</nombre>
         <tipo>timestamp without time zone</tipo>
         <nulo>YES</nulo>

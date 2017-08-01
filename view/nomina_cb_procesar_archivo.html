@@ -125,7 +125,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <div class="form-group">
                     <label for="nombre_archivo" class="col-sm-2 control-label">Nombre de Archivo</label>
                     <div class="col-sm-3">
-                    <input type="text" id="nombre_archivo" name="nombre_archivo" value="PE1219701{function="date('md')"}{$fsc->preliminar->secuencia}E.TXT" class="form-control input-sm">
+                        <input type="text" id="nombre_archivo" name="nombre_archivo" value="PE{$fsc->codigo_empresa}01{function="date('md')"}{$fsc->preliminar->secuencia}E.TXT" class="form-control input-sm">
                     </div>
                     <label for="importe_total" class="col-sm-2 control-label">Importe y Cantidad de Registros</label>
                     <div class="col-sm-2">

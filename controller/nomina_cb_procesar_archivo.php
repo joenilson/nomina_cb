@@ -21,6 +21,7 @@ require_once 'plugins/nomina_cb/vendor/PHPOffice/PHPExcel.php';
 
 require_model('archivobanco.php');
 require_model('lineasarchivobanco.php');
+require_model('opcionesbanco.php');
 /**
  * Description of nomina_cb_procesar_archivo
  *
@@ -32,6 +33,8 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
     public $resultado_total_importe;
     public $codbanco;
     public $tipoarchivo;
+    public $codigo_empresa;
+    public $email_contacto;
     public $coddivisa;
     public $codsubcuenta;
     public $periodo;
@@ -40,12 +43,14 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
     public $sec_lineas;
     public $preliminar;
     private $archivobanco;
+    private $opcionesbanco;
     public function __construct() {
         parent::__construct(__CLASS__, 'Procesar Archivo Pago', 'nomina', FALSE, FALSE);
     }
     
     protected function private_core() {
         parent::private_core();
+        $this->opcionesbanco = new opcionesbanco();
         $this->resultado = false;
         $this->codbanco = \filter_input(INPUT_POST, 'codbanco');
         $this->tipoarchivo = \filter_input(INPUT_POST, 'tipoarchivo');
@@ -54,10 +59,12 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
         $this->periodo = \filter_input(INPUT_POST, 'periodo');
         $this->mes = \filter_input(INPUT_POST, 'mes');
         $this->lineas = \filter_input(INPUT_POST,'codagente', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-        
+        $ob=$this->opcionesbanco->get($this->empresa->id, $this->codbanco);
+        $this->codigo_empresa = ($ob)?$ob->codempresa:'';
+        $this->email_contacto = ($ob)?$ob->email_contacto:'';
         if(\filter_input(INPUT_POST, 'procesar_archivo')){
             $this->guardar_archivo();
-        }else{
+        }elseif(isset($_FILES['archivo'])){
             $archivo = $_FILES['archivo'];
             $this->preliminar = new archivobanco();
             $this->preliminar->codbanco = $this->codbanco;
@@ -101,13 +108,14 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
         $estado = false;
         foreach($this->lineas as $cod){
             $agente = $this->agente->get($cod);
+            $tipocuenta = $this->tipocuenta->get($agente->codbanco);
             $monto = \filter_input(INPUT_POST, 'importe_'.$cod);
             $lineaarchivo = new lineasarchivobanco();
             $lineaarchivo->idarchivo = $idarchivo;
             $lineaarchivo->banco_receptor = $agente->codbanco;
             $lineaarchivo->codagente = $cod;
             $lineaarchivo->cuenta_banco = $agente->cuenta_banco;
-            $lineaarchivo->tipo_cuenta = $agente->tipo_cuenta;
+            $lineaarchivo->tipo_cuenta = (!empty($tipocuenta->codigo_banco))?$tipocuenta->codigo_banco:$agente->tipo_cuenta;
             $lineaarchivo->periodo = $this->periodo;
             $lineaarchivo->mes = $this->mes;
             $lineaarchivo->monto = $monto;
@@ -228,12 +236,13 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
                 $item->dnicif = str_pad($linea[0],11,'0',STR_PAD_LEFT);
                 $agente = $this->agente->get_by_dnicif($item->dnicif);
                 $banco = ($agente)?$this->bancos->get($agente->codbanco):false;
+                $tipocuenta = ($agente and !empty($agente->tipo_cuenta))?$this->tipocuenta->get($agente->tipo_cuenta):false;
                 $item->codagente = ($agente)?$agente->codagente:false;
                 $item->agente = ($agente)?$agente->nombreap:false;
                 $item->cuenta_banco = ($agente)?$agente->cuenta_banco:false;
                 $item->codbanco = ($banco)?$banco->codbanco:false;
                 $item->desc_banco = ($banco)?$banco->nombre:false;
-                $item->tipo_cuenta = ($agente)?$agente->tipo_cuenta:false;
+                $item->tipo_cuenta = ($tipocuenta)?$tipocuenta->codtipo.' - '.$tipocuenta->codigo_banco:false;
                 $item->importe = \number_format($importe,FS_NF0, FS_NF1, '');
                 $res[] = $item;
                 $this->resultado_total_importe += $item->importe;

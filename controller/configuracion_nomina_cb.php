@@ -32,7 +32,7 @@ class configuracion_nomina_cb extends nomina_cb_controller {
         parent::private_core();
         //Cargamos el menú
         $this->check_menu();
-        
+        $this->share_extensions();
     }
     
     /**
@@ -85,6 +85,23 @@ class configuracion_nomina_cb extends nomina_cb_controller {
     }
 
     public function share_extensions(){
-
+        $extensiones = array(
+            //Tabs de Configuracion adicionales
+            array(
+                'name' => 'config_nomina_tipo_cuenta',
+                'page_from' => __CLASS__,
+                'page_to' => 'configuracion_nomina',
+                'type' => 'tab',
+                'text' => '<span class="fa fa-book" aria-hidden="true"></span> &nbsp; Tipo Cuenta Banco',
+                'params' => '&type=tipo_cuenta_banco'
+            ),
+        );
+        
+        foreach ($extensiones as $ext) {
+            $fsext0 = new fs_extension($ext);
+            if (!$fsext0->delete()) {
+                $this->new_error_msg('Imposible guardar los datos de la extensión ' . $ext['name'] . '.');
+            }
+        }
     }
 }
