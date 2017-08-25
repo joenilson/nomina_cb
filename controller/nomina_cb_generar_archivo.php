@@ -130,7 +130,7 @@ class nomina_cb_generar_archivo extends nomina_cb_controller {
         $string .= \str_pad(substr($this->empresa->email,0,40),40,' ');
         $string .= " ";
         $string .= \str_pad(" ", 136," ");
-        $string .= "\n";
+        $string .= "\r\n";
         return $string;
     }
     
@@ -138,20 +138,21 @@ class nomina_cb_generar_archivo extends nomina_cb_controller {
     {
         $agente = $this->agente->get($l->codagente);
         $divisa = $this->divisa->get($coddivisa);
-        $nombre_completo = $agente->nombre.' '.$agente->apellidos.' '.$agente->segundo_apellido;
+        $banco = $this->bancos->get($agente->codbanco);
+        $nombre_completo = utf8_decode($agente->nombre.' '.$agente->apellidos.' '.$agente->segundo_apellido);
         $string = "N";
         $string .= \str_pad($this->empresa->cifnif,15,' ');
-        $string .= \str_pad($this->sec_lineas, 7,"0",STR_PAD_LEFT);
         $string .= \str_pad($sec, 7,"0",STR_PAD_LEFT);
-        $string .= \str_pad($agente->cuenta_banco, 20,"0",STR_PAD_LEFT);
+        $string .= \str_pad($this->sec_lineas, 7,"0",STR_PAD_LEFT);
+        $string .= \str_pad($agente->cuenta_banco, 20," ",STR_PAD_RIGHT);
         $string .= \str_pad((int) $agente->tipo_cuenta,1,' ');
         $string .= \str_pad((int) $divisa->codiso, 3,"0",STR_PAD_LEFT);
-        $string .= \str_pad('10101070', 8,"0",STR_PAD_LEFT);
+        $string .= \str_pad($banco->codigo_alterno, 8,"0",STR_PAD_LEFT);
         $string .= 8;
-        $string .= "22";
-        $string .= \number_format($l->monto,FS_NF0,'','');
+        $string .= \str_pad($l->tipo_cuenta, 2, "0", STR_PAD_LEFT);
+        $string .= \str_pad(\number_format($l->monto,FS_NF0,'',''),13,'0',STR_PAD_LEFT);
         $string .= "CE";
-        $string .= \str_pad($agente->dnicif, 15," ",STR_PAD_RIGHT);
+        $string .= \str_pad($agente->dnicif,15," ",STR_PAD_RIGHT);
         $string .= \str_pad(substr($nombre_completo,0,35),35,' ');
         $string .= \str_pad(" ", 12," ");
         $string .= \str_pad(" ", 40," ");
@@ -167,7 +168,7 @@ class nomina_cb_generar_archivo extends nomina_cb_controller {
         $string .= \str_pad(" ", 1," ");
         $string .= \str_pad(" ", 2," ");
         $string .= \str_pad(" ", 52," ");
-        $string .= "\n";
+        $string .= "\r\n";
         return $string;
     }
 

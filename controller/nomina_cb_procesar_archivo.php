@@ -108,7 +108,8 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
         $estado = false;
         foreach($this->lineas as $cod){
             $agente = $this->agente->get($cod);
-            $tipocuenta = $this->tipocuenta->get($agente->codbanco);
+            $tipocuenta = $this->tipocuenta->get($agente->tipo_cuenta);
+            $banco = ($agente)?$this->bancos->get($agente->codbanco):false;
             $monto = \filter_input(INPUT_POST, 'importe_'.$cod);
             $lineaarchivo = new lineasarchivobanco();
             $lineaarchivo->idarchivo = $idarchivo;
@@ -128,84 +129,6 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
             }
         }
         return $estado;
-    }
-    
-    public function cabecera()
-    {
-        $string = 'H';
-        $string .= \str_pad($this->empresa->cifnif,15,' ');
-        $string .= \str_pad(substr($this->empresa->nombre,0,35),35,' ');
-        $string .= "01";
-        $string .= \str_pad($this->archivobanco->secuencia, 7,"0",STR_PAD_LEFT);
-        $string .= \date('Ymd');
-        $string .= \str_pad(0, 11,"0",STR_PAD_LEFT);
-        $string .= \str_pad(0, 13,"0",STR_PAD_LEFT);
-        $string .= \str_pad(\filter_input(INPUT_POST, 'cantidad_registros'), 11,"0",STR_PAD_LEFT);
-        $string .= \str_pad(\filter_input(INPUT_POST, 'importe_total'), 13,"0",STR_PAD_LEFT);
-        $string .= \str_pad(0, 15,"0",STR_PAD_LEFT);
-        $string .= \date('Ymd');
-        $string .= \date('Hi');
-        $string .= \str_pad(substr($this->empresa->email,0,40),40,' ');
-        $string .= " ";
-        $string .= \str_pad(" ", 136," ");
-        $string .= "\n";
-        return $string;
-    }
-    
-    public function linea($cod)
-    {
-        $agente = $this->agente->get($cod);
-        $divisa = $this->divisa->get($this->coddivisa);
-        $monto = \filter_input(INPUT_POST, 'importe_'.$cod);
-        $nombre_completo = $agente->nombre.' '.$agente->apellidos.' '.$agente->segundo_apellido;
-        $string = "N";
-        $string .= \str_pad($this->empresa->cifnif,15,' ');
-        $string .= \str_pad($this->sec_lineas, 7,"0",STR_PAD_LEFT);
-        $string .= \str_pad($this->archivobanco->secuencia, 7,"0",STR_PAD_LEFT);
-        $string .= \str_pad($agente->cuenta_banco, 20,"0",STR_PAD_LEFT);
-        $string .= \str_pad((int) $agente->tipo_cuenta,1,' ');
-        $string .= \str_pad((int) $divisa->codiso, 3,"0",STR_PAD_LEFT);
-        $string .= \str_pad($agente->codbanco, 8,"0",STR_PAD_LEFT);
-        $string .= 8;
-        $string .= "22";
-        $string .= number_format($monto,FS_NF0,'','');
-        $string .= "CE";
-        $string .= \str_pad($agente->dnicif, 15," ",STR_PAD_RIGHT);
-        $string .= \str_pad(substr($nombre_completo,0,35),35,' ');
-        $string .= \str_pad(" ", 12," ");
-        $string .= \str_pad(" ", 40," ");
-        $string .= \str_pad(" ", 4," ");
-        $string .= \str_pad(" ", 1," ");
-        $string .= \str_pad(" ", 40," ");
-        $string .= \str_pad(" ", 12," ");
-        $string .= \str_pad("0", 2,"0");
-        $string .= \str_pad(" ", 15," ");
-        $string .= \str_pad(" ", 3," ");
-        $string .= \str_pad(" ", 3," ");
-        $string .= \str_pad(" ", 3," ");
-        $string .= \str_pad(" ", 1," ");
-        $string .= \str_pad(" ", 2," ");
-        $string .= \str_pad(" ", 52," ");
-        $string .= "\n";
-        return $string;
-    }
-
-    public function crear_archivo()
-    {
-        $this->template = false;
-        $archivo = \filter_input(INPUT_POST, 'nombre_archivo');
-        if ($this->tipoarchivo == 'txt') {
-            header("content-type:text/plain;charset=UTF-8");
-            header("Content-Disposition: attachment; filename=\"$archivo\"");
-            $cabecera = $this->cabecera();
-            echo $cabecera;
-            $this->sec_lineas = 1;
-            foreach ($this->lineas as $l) {
-                $linea = $this->linea($l);
-                echo $linea;
-                $this->sec_lineas++;
-            }
-        }
     }
     
     public function leer_archivo($archivo) {
@@ -241,12 +164,11 @@ class nomina_cb_procesar_archivo extends nomina_cb_controller {
                 $item->agente = ($agente)?$agente->nombreap:false;
                 $item->cuenta_banco = ($agente)?$agente->cuenta_banco:false;
                 $item->codbanco = ($banco)?$banco->codbanco:false;
-                $item->desc_banco = ($banco)?$banco->nombre:false;
+                $item->desc_banco = ($banco)?$banco->nombre. ' - '.$banco->codigo_alterno:false;
                 $item->tipo_cuenta = ($tipocuenta)?$tipocuenta->codtipo.' - '.$tipocuenta->codigo_banco:false;
                 $item->importe = \number_format($importe,FS_NF0, FS_NF1, '');
                 $res[] = $item;
                 $this->resultado_total_importe += $item->importe;
-                $this->show_numero();
             }
         }
         return $res;
